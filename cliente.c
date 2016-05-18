@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include "utils.h"
-
+#include "treeA.h"
 
 
 static int ppid = 0;

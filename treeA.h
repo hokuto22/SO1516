@@ -53,6 +53,6 @@ void insertTree(tree* root, char *name, char *pass);
 void printTree(node* root, FILE *fd);
 
 //1- Existe User, 0- Nao existe!
-int existUser(node* root, char *name);
+int existUser(node* root, char *name, char *pass);
 
 #endif

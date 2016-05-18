@@ -117,13 +117,15 @@ node* rotateRR(node* nod) {
 
 node* balanceNode(node* nod) {
 	node* newroot = NULL;
+	
+	int bf = 0;
 
 	if(nod->left)
 		nod->left = balanceNode(nod->left);
 	if(nod->right)
 		nod->right= balanceNode(nod->right);
 
-	int bf = balanceFactor(nod);
+	bf = balanceFactor(nod);
 
 	if(bf >= 2) {
 		if(balanceFactor(nod->left) <= -1 )
@@ -196,16 +198,20 @@ void printTree(node *t, FILE *fd) {
 	}
 }
 /* 0-NAO EXISTE! 1-EXISTE! */
-int existUser(node *t,char *username) {
+int existUser(node *t,char *username, char *pass) {
 
 	if(t) {
-		if(strcmp(t->username,username) == 0)
-			return 1;
+		if(strcmp(t->username,username) == 0){
+			if(strcmp(t->password,pass) == 0)
+				return 1;
+			else
+				return -4;
+		}
 		if(strcmp(t->username,username) > 0)
-			return existUser(t->left,username);
+			return existUser(t->left,username,pass);
 		else
-			return existUser(t->right,username);
+			return existUser(t->right,username,pass);
 	}	
 
-	return 0;
+	return -2;
 }

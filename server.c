@@ -50,10 +50,10 @@ int saveUsers(node *users)
 	return 0;
 }
 
-int login(char *username, char *pass){
+int login(node* users, char *username, char *pass){
 	int res = 0;
 
-	res = existU(username, pass);
+	res = existU(users,username,pass);
 	if (res == -2) 
 		return US_NOT_REGISTERED;
 	else{ 
@@ -71,10 +71,8 @@ int reg(char *username, char *pass){
 	strcat(dir, "USERs/");
 	strcat(dir, username);
 	strcat(dir, "/");
-	
 
-
-	res = insertU(&users, username, pass);
+	res = existU(users,username,pass);
 
 	if(res == 1) 
 		return US_ALREADY_EXISTS;
@@ -82,6 +80,8 @@ int reg(char *username, char *pass){
 		strcpy(dir, path);
 
 	}
+
+	res = insertTree(&users, username, pass);
 
 		return res;
 }

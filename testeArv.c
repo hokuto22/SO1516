@@ -18,19 +18,23 @@ int main(int argc, char* argv[]){
 	insertTree(root,"Carlos","Silvita");
 	insertTree(root,"Fanecas","Fritas");
 
-	existUser(root->root,"Joaquim")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
+	
+existUser(root->root,"Joaquim","")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 
 	insertTree(root,"Joaquim","Fascinhas");
 
-	existUser(root->root,"Joaquim")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 	
-existUser(root->root,"Carlos")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
+existUser(root->root,"Joaquim","Fascinhas")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 	
-existUser(root->root,"Zeca")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
+existUser(root->root,"Carlos","Fana")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
+	
+existUser(root->root,"Zeca","Estaciona")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 
 	printTree(root->root,fp);	
 
 	cleanTree(root->root);
+
+	free(root);
 
 	fclose(fp);
 
