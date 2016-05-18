@@ -1,5 +1,5 @@
 #include "utils.h"
-#include "userT.h"
+#include "treeA.h" /* ALTERAR HEADER */
 
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +38,7 @@ int saveUsers(node *users)
 		_exit(EXIT_FAILURE);
 	}
 
-	printU(users, fp);
+	printTree(users, fp);
 
 	erro = fclose(fp);
 	if (erro < 0)

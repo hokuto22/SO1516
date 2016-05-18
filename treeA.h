@@ -1,22 +1,50 @@
 #ifndef treeA_h
 #define treeA_h
 
-struct bin_tree {
+struct avl_node {
 	char *username;
 	char *password;
-	struct bin_tree *right;
-	struct bin_tree *left;
+	struct avl_node *right;
+	struct avl_node *left;
 };
 
-typedef struct bin_tree node;
+typedef struct avl_node node;
+
+struct avl_tree {
+	struct avl_node *root;
+};
+
+typedef struct avl_tree tree;
 
 //Limpa a estrutura
-void cleanTree(node *root);
+void cleanTree(node* root);
+
+tree* createTree();
+
+node* createNode();
+
+int heightTree(node* node);
+
+int balanceFactor(node* node);
+
+node* rotateLL(node* node);
+
+node* rotateLR(node* node);
+
+node* rotateRL(node* node);
+
+node* rotateRR(node* node);
+
+node* balanceNode(node* node);
+
+void balanceTree(tree* root);
 
 //Insere na arvore
-void insertTree(node **t, char *name, char *pass);
+void insertTree(tree* root, char *name, char *pass);
 
 //Print da arvore
-void printTree(node *t, FILE *fd);
+void printTree(node* root, FILE *fd);
+
+int existUser(node* root, char *name);
 
 #endif

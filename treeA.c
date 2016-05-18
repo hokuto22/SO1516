@@ -3,50 +3,209 @@
 #include <string.h>
 #include "treeA.h"
 
-void cleanTree(node *root) {
-	if(root) {
-		cleanTree(root->right);
-		cleanTree(root->left);
-		free(root->username);
-		free(root->password);
-		free(root);
+// NODES SAO DESIGNADOS POR "NOD" DEVIDO A ERRO DE PARSING DO GCC
+
+void cleanTree(node *t) {	
+
+	if(t) {
+		cleanTree(t->right);
+		cleanTree(t->left);
+		free(t->username);
+		free(t->password);
+		free(t);
 	}
 }
 
-void insertTree(node **t, char *name, char *pass) {
+tree* createTree() {
 
-	//result para reduzir no numero de calculos (strcmp)
-	int result=0;
+	tree* tree = NULL;
 
-	node *temp = NULL;
+	if((tree=malloc(sizeof(tree)))==NULL) 
+		return NULL;
 
-	if(!(*t)) {
-		temp = (node *) malloc(sizeof(node));
-		//temp->username = (char *) malloc(sizeof(char)*1024);
-		//temp->password = (char *) malloc(sizeof(char)*1024);
-		temp->left = NULL;
-		temp->right= NULL;
-		
-		temp->username=strdup(name);
-		temp->password=strdup(pass);
+	tree->root = NULL;
 
-		*t = temp;
-	}
-	else if((result=strcmp(name,(*t)->username)) != 0) {
-		if(result < 0)
-			insertTree(&(*t)->left, name, pass);
-		else
-			insertTree(&(*t)->right,name, pass);
-	}
+	return tree;
+}
+
+node* createNode() {
+
+	node* nod = NULL;
+
+	if((nod=malloc(sizeof(node)))==NULL)
+		return NULL;
 	
+	nod->left = NULL;
+	nod->right= NULL;
+	nod->username= " ";
+	nod->password= " ";
+
+	return nod;
+}
+
+int heightTree(node* nod) {
+	int height_left = 0;
+	int height_right = 0;
+
+	if(nod->left)
+		height_left = heightTree(nod->left);
+	if(nod->right)
+		height_right = heightTree(nod->right);
+
+	return height_right > height_left ? ++height_right : ++height_left;
+} 
+
+int balanceFactor(node* node) {
+	int bf = 0;
+
+	if(node->left)
+		bf += heightTree(node->left);
+	if(node->right)
+		bf -= heightTree(node->right);
+
+	return bf;
+} 
+
+node* rotateLL(node* nod) {
+	node* a = nod;
+	node* b = a->left;
+
+	a->left = b->right;
+	b->right = a;
+
+	return(b);
+}
+
+node* rotateLR(node* nod) {
+
+	node* a = nod;
+	node* b = a->left;
+	node* c = b->right;
+
+	a->left = c->right;
+	b->right= c->left;
+	c->left = b;
+	c->right= a;
+
+	return(c);
+}
+
+node* rotateRL(node* nod) {
+	
+	node* a = nod;
+	node* b = a->right;
+	node* c = b->left;
+
+	a->right= c->left;
+	b->left = c->right;
+	c->right= b;
+	c->left = a;
+
+	return(c);
+}
+
+node* rotateRR(node* nod) {
+
+	node* a = nod;
+	node* b = a->right;
+
+	a->right= b->left;
+	b->left = a;
+
+	return(b);
+}
+
+node* balanceNode(node* nod) {
+	node* newroot = NULL;
+
+	if(nod->left)
+		nod->left = balanceNode(nod->left);
+	if(nod->right)
+		nod->right= balanceNode(nod->right);
+
+	int bf = balanceFactor(nod);
+
+	if(bf >= 2) {
+		if(balanceFactor(nod->left) <= -1 )
+			newroot = rotateLR(nod);
+		else
+			newroot = rotateLL(nod);
+	}else if(bf <= -2) {
+		if(balanceFactor(nod->right)<= 1)
+			newroot = rotateRL(nod);
+		else
+			newroot = rotateRR(nod);
+	}else
+		newroot = nod;
+
+	return(newroot);
+}
+
+void balanceTree(tree *t) {
+
+	node* newroot = NULL;
+
+	newroot = balanceNode(t->root);
+
+	if(newroot != t->root)
+		t->root = newroot;
+}
+
+void insertTree(tree *t, char *name, char *pass) {
+
+	node* nod = NULL;
+	node* next = NULL;
+	node* last = NULL;
+
+	if(t->root == NULL) {
+		nod = createNode();
+		nod->username=strdup(name);
+		nod->password=strdup(pass);
+		t->root = nod;
+	}else {
+		next = t->root;
+
+		while(next != NULL) {
+			last = next;
+
+			if(strcmp(next->username,name)>0)
+				next = next->left;
+			else
+				next = next->right;
+		}
+
+		nod = createNode();
+		nod->username = strdup(name);
+		nod->password = strdup(pass);
+
+		if(strcmp(last->username,name)>0) 
+			last->left = nod;
+		if(strcmp(last->username,name)<0)
+			last->right= nod;
+	}
+
+	balanceTree(t);
 }
 
 
 void printTree(node *t, FILE *fd) {
-
 	if(t != NULL) {
 		printTree(t->left,fd);
 		fprintf(fd,"%s;%s\n",t->username,t->password);
 		printTree(t->right,fd);
 	}
+}
+/* 0-NAO EXISTE! 1-EXISTE! */
+int existUser(node *t,char *username) {
+
+	if(t) {
+		if(strcmp(t->username,username) == 0)
+			return 1;
+		if(strcmp(t->username,username) > 0)
+			return existUser(t->left,username);
+		else
+			return existUser(t->right,username);
+	}	
+
+	return 0;
 }
