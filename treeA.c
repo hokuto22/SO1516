@@ -35,8 +35,7 @@ void insertTree(node **t, char *name, char *pass) {
 	else if((result=strcmp(name,(*t)->username)) != 0) {
 		if(result < 0)
 			insertTree(&(*t)->left, name, pass);
-		
-		if(result > 0)
+		else
 			insertTree(&(*t)->right,name, pass);
 	}
 	
