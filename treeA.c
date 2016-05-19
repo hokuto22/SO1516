@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "treeA.h"
 
 // NODES SAO DESIGNADOS POR "NOD" DEVIDO A ERRO DE PARSING DO GCC
@@ -150,7 +151,7 @@ void balanceTree(tree *t) {
 	newroot = balanceNode(t->root);
 
 	if(newroot != t->root)
-		t->root = newroot;
+		t->root = newroot;	
 }
 
 void insertTree(tree *t, char *name, char *pass) {
