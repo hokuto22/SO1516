@@ -150,15 +150,15 @@ ssize_t readLine(int fildes, void *buf, size_t nbyte)
 }
 
 /* Executa 1 comando e redireciona o output para uma estrutura do tipo Comando */
-Comando leComando(char *comando)
+Command readCommand(char *command)
 {
 	int i = 0, tam = 1024, j = 0, pid = 0, status = 0, pd[2], erro = 0;
 	char **output = (char **)malloc(sizeof(char *) * tam), **aux;
-	Comando res = (Comando)malloc(sizeof(NComando));
+	Command res = (Command)malloc(sizeof(NCommand));
 	
 	if (output == NULL || res == NULL)
 	{
-		perror("leComando malloc");
+		perror("readCommand malloc");
 		_exit(EXIT_FAILURE);
 	}
 	for (i = 0; i < tam; i++)
@@ -166,29 +166,29 @@ Comando leComando(char *comando)
 		output[i] = (char *)malloc(sizeof(char) * TAM_LINHA);
 		if (output[i] == NULL)
 		{
-			perror("leComando malloc 2 output");
+			perror("readCommand malloc 2 output");
 			_exit(EXIT_FAILURE);
 		}
 	}
 	erro = pipe(pd);
 	if (erro < 0) /* Erro pipe */
 	{
-		perror("leComando pipe");
+		perror("readCommand pipe");
 		_exit(EXIT_FAILURE);
 	}
 	pid = fork();
 	switch (pid)
 	{
 		case -1: /* Erro fork */
-			perror("leComando fork");
+			perror("readCommand fork");
 			_exit(EXIT_FAILURE);
 		
 		case 0: /* Processo filho */
-			close(pd[0]); /* Fecha leitura */
+			close(pd[0]); /* Fecha readitura */
 			dup2(pd[1], 1); /* Altera escrita */
 			close(pd[1]); /* Fecha escrita */
-			execl("/bin/sh", "sh", "-c", comando, (char *) NULL);
-			perror("leComando execl");
+			execl("/bin/sh", "sh", "-c", Command, (char *) NULL);
+			perror("readCommand execl");
 			_exit(EXIT_FAILURE);
 		
 		default: /* Processo pai */
@@ -196,7 +196,7 @@ Comando leComando(char *comando)
 			erro = waitpid(pid, &status, 0); /* Espera pelo processo filho */
 			if (erro < 0) /* Erro waitpid */
 			{
-				perror("leComando waitpid");
+				perror("readCommand waitpid");
 				_exit(EXIT_FAILURE);
 			}
 			pid = WIFEXITED(status);
@@ -205,7 +205,7 @@ Comando leComando(char *comando)
 				pid = WEXITSTATUS(status); /* Descobre o valor do exit do processo filho */
 				if (pid == EXIT_FAILURE)
 				{
-					perror("leComando WEXITSTATUS pid");
+					perror("readCommand WEXITSTATUS pid");
 					_exit(EXIT_FAILURE);
 				}
 			}
@@ -220,7 +220,7 @@ Comando leComando(char *comando)
 			aux = (char **)realloc(output, sizeof(char *) * tam);
 			if (aux == NULL) /* Erro realloc */
 			{
-				perror("leComando realloc");
+				perror("readCommand realloc");
 				_exit(EXIT_FAILURE);
 			}
 			output = aux; /* Atualizar apontador */

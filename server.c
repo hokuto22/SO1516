@@ -15,9 +15,143 @@
 #define US_ALREADY_EXISTS   -3
 #define US_WRONG_PASS  		-4
 
-static node *users;
-static char path[] = "/home/$USER/.Backup/"
+static tree *users;
+static char path[] = "/home/$USER/.Backup/Accounts"
 static int processesinqueue;
+
+
+int loaddata(){
+
+	int n = 0, fd = 0, error = 0;
+	char line[1024];
+	char *dir, *token, *strArray[128];
+ 	
+ 	users = createTree();
+
+	strcpy(dir, path);
+	strcat(dir, "users.log")
+
+	fd = open(dir, O_RDONLY);
+
+	if(fd<0){
+		perror("loaddata open");
+		_exit(EXIT_FAILURE);
+	}
+
+	while((readline(fd,line, sizeof(line))) > 0){
+	
+		token = strtok(line, ";");
+
+		while(token != NULL){
+			strArray[i] = strdup(token);
+			token = strtok(NULL, ";");
+			i++;
+		}
+
+		insertTree(users, strArray[0], strArray[1]);
+	}
+
+	error = close(fd);
+	if (error < 0)
+	{
+		perror("loaddata close");
+		_exit(EXIT_FAILURE);
+	}
+}
+
+
+void backup(int ppid, char *username, char *files){
+
+	int error = 0, n = 0, i = 0, m = 0; 
+	char *token, *strArray[1024], *pArray[1024], *sArray[1024], *ddir, *mdir, *dir, *dir2, *mkd, *filen, *s1, *sha;
+	Command c = NULL;
+
+	strcpy(dir2, path);
+	strcat(dir2, username);
+	token =  strtok( files, " ");
+
+	while(token != NULL){
+		strArray[i] = strdup(token);
+		token =  strtok(NULL, " ");
+		i++
+	}
+
+	if(i = 1){ 
+
+		dir = strdup(strArray[0]);
+		
+		token =  strtok( files, "/");
+
+		while(token != NULL){
+			pArray[n] = strdup(token);
+			token =  strtok(NULL, " ");
+			n++
+		}
+
+		strcpy(sha, "sha1sum ");
+		strcat(sha, dir);
+
+		filen = pArray[n-1];
+		c = readCommand(sha);
+
+		token = strtok( c->output[0], " ");
+
+		while(token != NULL){
+			sArray[m] = strdup(token);
+			token = strtok(NULL, " ");
+			m++
+		}
+
+		s1 = sArray[0];
+
+
+		for( j = 0; j < n-2 ){
+			strcat(dir2, pArray[j]);
+			strcpy(mkd, "mkdir ");
+			strcat(mkd, dir2);
+			c = command(mkd);
+
+			if(j == n-2){
+				if(c->lines == 1 ){
+					perror("backup mkdir");
+					_exit(EXIT_FAILURE);
+				}
+			}
+		}
+		strcpy(ddir, mkd);
+		strcat(ddir, "/data/");
+		c = command(ddir);
+		if(c->lines == 1 ){
+				perror("backup mkdir");
+				_exit(EXIT_FAILURE);
+		}
+		strcpy(mdir, mkd);
+		strcat(mdir, "/metadata/");
+		c = command(mdir);
+		if(c->lines == 1 ){
+				perror("backup mkdir");
+				_exit(EXIT_FAILURE);
+		}
+		strcpy(mkd, "gzip -c ");
+		strcat(mkd; dir);
+		strcat(mkd, "> ");
+		strcat(mkd, ddir );
+		strcat(mkd, s1);
+
+		c = readCommand(mkd);
+		strcpy(mkd, "ln -s -f ");
+		strcat(mkd, ddir);
+		strcat(mkd, s1);
+		strcat(mkd, " ");
+		strcat(mkd, mdir);
+		strcat(mkd, pArray[n-1]);
+
+		c = readCommand(mkd);
+		/*SEND SIGNAL*/
+	}
+
+
+}
 
 /* Armazena os dados dos utilizadores em ficheiro: 
 retorna 0 em caso de sucesso. */
@@ -38,7 +172,7 @@ int saveUsers(node *users)
 		_exit(EXIT_FAILURE);
 	}
 
-	printTree(users, fp);
+	printTree(users->root, fp);
 
 	erro = fclose(fp);
 	if (erro < 0)
@@ -50,10 +184,10 @@ int saveUsers(node *users)
 	return 0;
 }
 
-int login(node* users, char *username, char *pass){
+int login(node *u, char *username, char *pass){
 	int res = 0;
 
-	res = existU(users,username,pass);
+	res = existUser(users->root,username,pass);
 	if (res == -2) 
 		return US_NOT_REGISTERED;
 	else{ 
@@ -66,30 +200,35 @@ int login(node* users, char *username, char *pass){
 int reg(char *username, char *pass){
 	int res;
 	char dir[1024];
+	Command c = NULL;
 
-	strcpy(dir, path);
-	strcat(dir, "USERs/");
+	res = existUser(users->root,username,pass);
+
+	if(res == -2){
+
+	strcpy(dir, "mkdir ")
+	strcat(dir, path);
+	strcat(dir, FOLDER_NAME);
 	strcat(dir, username);
-	strcat(dir, "/");
 
-	res = existU(users,username,pass);
+    c = readCommand(dir);
 
-	if(res == 1) 
-		return US_ALREADY_EXISTS;
-	else {
-		strcpy(dir, path);
+    if(c->lines > 0){
+    	perror("reg mkdir");
+    	_exit(EXIT_FAILURE);	
+    } 
 
+	insertTree(users, username, pass);
+
+	res = 0;
 	}
-
-	res = insertTree(&users, username, pass);
-
-		return res;
+return res;
 }
 
 int readFifo(char *fifo, char ***message)
 {
-	int fd = 0, i = 0, tam = 1024, n = 0, erro = 0;
-	char *buffer;
+	int fd = 0, i = 0, n = 0, erro = 0;
+	char buffer[1024];
 	char *token, *strArray[128];
 	
 	fd = open(fifo, O_RDONLY);
@@ -99,7 +238,6 @@ int readFifo(char *fifo, char ***message)
 		_exit(EXIT_FAILURE);
 	}
 	
-	buffer = (char *)malloc(sizeof(char ) * tam);
 	n = readline(fd, buffer, sizeof(buffer));
 	
 	if (n < 0){
