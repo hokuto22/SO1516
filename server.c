@@ -93,66 +93,66 @@ void backup(int ppid, char *username, char *files){
 		strcat(f, dir);
 		c = readCommand(f);
 
-		for(l = 0; l <c->lines; l++)
+		for(l = 0; l <c->lines; l++){
 
-		strcpy(sha, "sha1sum ");
-		strcat(sha, c->output[l]);
+			strcpy(sha, "sha1sum ");
+			strcat(sha, c->output[l]);
 
-		c = readCommand(sha);
+			c = readCommand(sha);
 
-		token = strtok( c->output[0], " ");
+			token = strtok( c->output[0], " ");
 
-		while(token != NULL){
-			sArray[m] = strdup(token);
-			token = strtok(NULL, " ");
-			m++
-		}
+			while(token != NULL){
+				sArray[m] = strdup(token);
+				token = strtok(NULL, " ");
+				m++
+			}
 
-		s1 = sArray[0];
+			s1 = sArray[0];
 
 
-		for( j = 0; j < n-2 ){
-			strcat(dir2, pArray[j]);
-			strcpy(mkd, "mkdir ");
-			strcat(mkd, dir2);
-			c = command(mkd);
+			for( j = 0; j < n-2 ){
+				strcat(dir2, pArray[j]);
+				strcpy(mkd, "mkdir ");
+				strcat(mkd, dir2);
+				c = command(mkd);
 
-			if(j == n-2){
-				if(c->lines == 1 ){
-					perror("backup mkdir");
-					_exit(EXIT_FAILURE);
+				if(j == n-2){
+					if(c->lines == 1 ){
+						perror("backup mkdir");
+						_exit(EXIT_FAILURE);
+					}
 				}
 			}
-		}
-		strcpy(ddir, mkd);
-		strcat(ddir, "/data/");
-		c = command(ddir);
-		if(c->lines == 1 ){
+			strcpy(ddir, mkd);
+			strcat(ddir, "/data/");
+			c = command(ddir);
+			if(c->lines == 1 ){
 				perror("backup mkdir");
 				_exit(EXIT_FAILURE);
-		}
-		strcpy(mdir, mkd);
-		strcat(mdir, "/metadata/");
-		c = command(mdir);
-		if(c->lines == 1 ){
+			}
+			strcpy(mdir, mkd);
+			strcat(mdir, "/metadata/");
+			c = command(mdir);
+			if(c->lines == 1 ){
 				perror("backup mkdir");
 				_exit(EXIT_FAILURE);
-		}
-		strcpy(mkd, "gzip -c ");
-		strcat(mkd; dir);
-		strcat(mkd, "> ");
-		strcat(mkd, ddir );
-		strcat(mkd, s1);
+			}
+			strcpy(mkd, "gzip -c ");
+			strcat(mkd; dir);
+			strcat(mkd, "> ");
+			strcat(mkd, ddir );
+			strcat(mkd, s1);
 
-		c = readCommand(mkd);
-		strcpy(mkd, "ln -s -f ");
-		strcat(mkd, ddir);
-		strcat(mkd, s1);
-		strcat(mkd, " ");
-		strcat(mkd, mdir);
-		strcat(mkd, pArray[n-1]);
+			c = readCommand(mkd);
+			strcpy(mkd, "ln -s -f ");
+			strcat(mkd, ddir);
+			strcat(mkd, s1);
+			strcat(mkd, " ");
+			strcat(mkd, mdir);
+			strcat(mkd, pArray[n-1]);
 
-		c = readCommand(mkd);
+			c = readCommand(mkd);
 		/*SEND SIGNAL*/
 		}
 	}
