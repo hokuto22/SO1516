@@ -62,8 +62,8 @@ int loaddata(){
 
 void backup(int ppid, char *username, char *files){
 
-	int error = 0, n = 0, i = 0, m = 0 j = 0, k = 0; 
-	char *token, *strArray[1024], *pArray[1024], *sArray[1024], *ddir, *mdir, *dir, *dir2, *mkd, *filen, *s1, *sha;
+	int error = 0, n = 0, i = 0, m = 0 j = 0, k = 0, l = 0; 
+	char *token, *strArray[1024], *pArray[1024], *sArray[1024], *f, *ddir, *mdir, *dir, *dir2, *mkd, *filen, *s1, *sha;
 	Command c = NULL;
 
 	strcpy(dir2, path);
@@ -76,9 +76,9 @@ void backup(int ppid, char *username, char *files){
 		i++
 	}
 
-	if(i = 1){ /* um unico ficheiro para fazer backup*/
-
-		dir = strdup(strArray[0]);
+	for(k = 0; k < i; k++){
+		
+		dir = strdup(strArray[k]);
 		
 		token =  strtok( files, "/");
 
@@ -88,10 +88,16 @@ void backup(int ppid, char *username, char *files){
 			n++
 		}
 
-		strcpy(sha, "sha1sum ");
-		strcat(sha, dir);
-
 		filen = pArray[n-1];
+		strcpy(f, "ls");
+		strcat(f, dir);
+		c = readCommand(f);
+
+		for(l = 0; l <c->lines; l++)
+
+		strcpy(sha, "sha1sum ");
+		strcat(sha, c->output[l]);
+
 		c = readCommand(sha);
 
 		token = strtok( c->output[0], " ");
@@ -148,81 +154,8 @@ void backup(int ppid, char *username, char *files){
 
 		c = readCommand(mkd);
 		/*SEND SIGNAL*/
+		}
 	}
-	if(i > 1){
-		for()
-		dir = strdup(strArray[0]);
-		
-		token =  strtok( files, "/");
-
-		while(token != NULL){
-			pArray[n] = strdup(token);
-			token =  strtok(NULL, " ");
-			n++
-		}
-
-		strcpy(sha, "sha1sum ");
-		strcat(sha, dir);
-
-		filen = pArray[n-1];
-		c = readCommand(sha);
-
-		token = strtok( c->output[0], " ");
-
-		while(token != NULL){
-			sArray[m] = strdup(token);
-			token = strtok(NULL, " ");
-			m++
-		}
-
-		s1 = sArray[0];
-
-
-		for( j = 0; j < n-2 ){
-			strcat(dir2, pArray[j]);
-			strcpy(mkd, "mkdir ");
-			strcat(mkd, dir2);
-			c = command(mkd);
-
-			if(j == n-2){
-				if(c->lines == 1 ){
-					perror("backup mkdir");
-					_exit(EXIT_FAILURE);
-				}
-			}
-		}
-		strcpy(ddir, mkd);
-		strcat(ddir, "/data/");
-		c = command(ddir);
-		if(c->lines == 1 ){
-				perror("backup mkdir");
-				_exit(EXIT_FAILURE);
-		}
-		strcpy(mdir, mkd);
-		strcat(mdir, "/metadata/");
-		c = command(mdir);
-		if(c->lines == 1 ){
-				perror("backup mkdir");
-				_exit(EXIT_FAILURE);
-		}
-		strcpy(mkd, "gzip -c ");
-		strcat(mkd; dir);
-		strcat(mkd, "> ");
-		strcat(mkd, ddir );
-		strcat(mkd, s1);
-
-		c = readCommand(mkd);
-		strcpy(mkd, "ln -s -f ");
-		strcat(mkd, ddir);
-		strcat(mkd, s1);
-		strcat(mkd, " ");
-		strcat(mkd, mdir);
-		strcat(mkd, pArray[n-1]);
-
-		c = readCommand(mkd);
-		/*SEND SIGNAL*/
-	}
-
 
 }
 
