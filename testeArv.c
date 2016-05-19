@@ -22,7 +22,6 @@ int main(int argc, char* argv[]){
 existUser(root->root,"Joaquim","")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 
 	insertTree(root,"Joaquim","Fascinhas");
-
 	
 existUser(root->root,"Joaquim","Fascinhas")==1?printf("\nYAY\n"):printf("\nNOOOO!\n");
 	
