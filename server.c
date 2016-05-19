@@ -16,7 +16,7 @@
 #define US_WRONG_PASS  		-4
 
 static tree *users;
-static char path[] = "/home/$USER/.Backup/Accounts"
+static char path[] = "/home/$USER/.Backup/Accounts/"
 static int processesinqueue;
 
 
@@ -158,6 +158,50 @@ void backup(int ppid, char *username, char *files){
 	}
 
 }
+
+void restore(int ppid, char *username, char *files){
+
+	int error = 0, n = 0, i = 0, m = 0 j = 0, k = 0, l = 0; 
+	char *token, *strArray[1024], *pArray[1024], *sArray[1024], *f, *ddir, *mdir, *dir, *dir2, *mkd, *filen, *s1, *sha;
+	Command c = NULL;
+
+	strcpy(dir2, path);
+	strcat(dir2, username);
+	strcat(dir2, "/");
+
+	dir = strdup(files);
+		
+	token = strtok( files, "/");
+
+	while(token != NULL){
+		pArray[n] = strdup(token);
+		token =  strtok(NULL, "/");
+		n++
+	}
+
+	filen = pArray[n-1];
+
+	for( j = 0; j < n-2; j++ ){
+		strcat(drest,pArray[j]);
+		strcat(drest,"/");
+	}
+
+	strcat(drest, "metadata/");
+	strcat(drest, filen);
+	strcat(find, "readlink -e ");
+	strcat(find, drest);
+
+	c = readCommand(find);
+
+	strcpy(rest, "gunzip -c ");
+	strcat(rest, c->output[0]);
+	strcat(rest, " > ");
+	strcat(rest, files);
+
+	c = readCommand(rest);
+/*send signal*/
+}
+
 
 /* Armazena os dados dos utilizadores em ficheiro: 
 retorna 0 em caso de sucesso. */
